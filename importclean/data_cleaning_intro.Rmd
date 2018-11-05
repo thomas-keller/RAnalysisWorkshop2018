@@ -1,8 +1,7 @@
 ---
 title: "Introduction to data cleaning in R (the tidyverse way)"
 output:
-  html_document:
-    df_print: paged
+  github_document
 ---
 
 This is an opionated introduction to importing and cleaning your data specifically focused on tools from the [tidyverse](https://www.tidyverse.org/). A really good resource for learning R at your own speed is [R for data science](https://r4ds.had.co.nz/), by Hadley Wickham and Garrett Grolemund.
@@ -11,9 +10,18 @@ We'll also go briefly go over reading in excel files, as that is a common format
 
 tidyverse is a meta library that bundles several libraries together, for our purposes we will be using functions from the readr (fast, C++ based import functions) library and dplyr for cleaning. Technically there is one final library called magrittr used that gives us what is called a "pipe" that glues together multiple commands.
 
+IMPORTANT! How to keep all of your files/Rstudio pointing to a place of your choosing.
+R/Rstudio will look for files in the place where it is started from (or its HOME). Often this will be Documents in windows or something similar on linux. 
+
+[Projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects) are Rstudios way of associating a new/existing directory with R files. I recommend you create a project for this workshop (name it whatever you like). Once you create this project, rstudio will automatically change the internal path to that directory. You can manually get and change directories with getwd() and setwd(), but that tends to be brittle (directories don't exist on other people's computers or in different years even on the same person's computer), so project's tend to be a little more general and user friendly. For more details and an example of using an extra package called here that lets you references directories relative to the base project [see this blog post by Jenny Bryan](https://www.tidyverse.org/articles/2017/12/workflow-vs-script/) It's somewhat advanced and more about production code (i.e. if you are going to share with others vs code just intended for yourself)
+
+Copy this Rmd and the supporting data files (gapdata.xls,gdpPercap.txt,life,life-expectancy-reference-spreadsheet-20090204-xls-format.xls) to the project directory you created.
+
 PART I
 
 ```{r import}
+#remove the # to uncomment the following lines
+#before install.packages and run these commands if they are not installed on your system
 #install.packages('tidyverse') #do this if you have not installed before
 #install.packages('summarytools')
 #install.packages('readxl')
@@ -58,6 +66,20 @@ There are 5 main "verbs" in dplyr that you will see over and over again. These a
 
 
 Most of these verbs will be introduced naturally over the course of the cleaning steps.
+
+
+```{r sumarr}
+#the general cleaning doesn't actually use arrange() or summarise() but these are super important, here's a simple example 
+#A simple formatting tip, you can loop to new line after pipes (%>%)
+#you can chain together commands with multiple %>% (pipes), reading from left to right. Here, filter feeds into grouping variable then summarise, finalize with descdending arrange on the summarised data
+us<-gapminder %>% filter(country=="United States") %>% group_by(country) %>% summarise(lifeExp=mean(lifeExp))
+all_count <- gapminder %>% 
+  group_by(country) %>% 
+  summarise(lifeExp=mean(lifeExp)) %>% 
+  arrange(desc(lifeExp))
+
+all_count %>% glimpse()
+```
 
 ```{r cleanpop}
 summary(pop_xls$Year)
